@@ -11,7 +11,7 @@ class Portfel(akcii.stock):
         self.percs = percs
         
         self.code = [st.code for st in stocks]
-        self.name = [st.name for st in stocks]
+        #self.name = [st.name for st in stocks]
 
         tmp = [st.pricesYear for st in stocks]
         
@@ -31,7 +31,7 @@ class Portfel(akcii.stock):
             self.pricesYear = numpy.dot(numpy.transpose(tmp), percs)         
             self.prices3Months = numpy.dot(numpy.transpose(tmp1), percs)
         except:
-            print("error in ", list(map(lambda s:s.name, self.stocks)))
+            print("error in ", list(map(lambda s:s.code, self.stocks)))
 
 
     def loadPrices(self):
@@ -43,4 +43,4 @@ class Portfel(akcii.stock):
 
     def toDict(self):
         ms = self.getMs()
-        return {'percs':self.percs, 'names':list(map(lambda st:st.name, self.stocks)), 'm1':ms[0], 'm2':ms[1], 'dohod':self.getDohod() }
+        return {'percs':self.percs, 'm1':ms[0], 'm2':ms[1], 'dohod':self.getDohod() }

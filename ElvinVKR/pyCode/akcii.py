@@ -16,20 +16,20 @@ class stock:
     Расчёт коэфф. М
     Рассчёт доходности
     """
-    name:str = ""
+    #name:str = ""
     code:str = ""
     id:int = 0
     pricesYear:List[float] = []
     prices3Months:List[float] = []
 
-    def __init__(self, name:str, code:str, id:int):
+    def __init__(self,  code:str, id:int):
         """
         Конструктор - запоминаем 
         название, код и ид
         """
         self.code = code
         self.id = id
-        self.name = name
+        #self.name = name
         
     def loadPrices(self)->None:
         """
@@ -57,7 +57,7 @@ class stock:
                 self.prices3Months = list(map(float, ar2))
             except ValueError:
                 print("Error")
-                print(self.name, self.code)
+                #print(self.name, self.code)
                 print(ar1)
                 print(ar2)
                 self.pricesYear = []

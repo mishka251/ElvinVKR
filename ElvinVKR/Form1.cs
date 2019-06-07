@@ -10,13 +10,19 @@ namespace ElvinVKR
 {
     public partial class Form1 : Form
     {
-        public Form1()
+        List<stockInfo> stocksList;
+        public Form1(List<stockInfo> stocks = null)
         {
             InitializeComponent();
 
             string exeDir = Directory.GetCurrentDirectory();
             DirectoryInfo info = new DirectoryInfo(exeDir);
             DirPath = info.Parent.Parent.FullName;
+
+            if (stocks != null)
+            {
+                stocksList = stocks;
+            }
 
         }
 
@@ -69,7 +75,7 @@ namespace ElvinVKR
             dataGridView1.Columns.Clear();
 
             dataGridView1.Columns.Add("percsCol", "Проенты");
-            dataGridView1.Columns.Add("namesCol", "Названия");
+            //dataGridView1.Columns.Add("namesCol", "Названия");
             dataGridView1.Columns.Add("m1Col", "м1");
             dataGridView1.Columns.Add("m2Col", "м2");
             dataGridView1.Columns.Add("dohodCol", "Доходность");
@@ -77,7 +83,7 @@ namespace ElvinVKR
             for (int i = 0; i < allPortfels.Count; i++)
             {
                 JObject obj = (JObject)allPortfels[i];
-                object[] arr = { obj["percs"], obj["names"], obj["m1"], obj["m2"], obj["dohod"] };
+                object[] arr = { obj["percs"],/*, obj["names"],*/ obj["m1"], obj["m2"], obj["dohod"] };
                 dataGridView1.Rows.Add(arr);
                 dataGridView1.Rows[i].HeaderCell.Value = (i + 1) + "";
 
@@ -90,7 +96,7 @@ namespace ElvinVKR
                     for (int k = 0; k < ((JArray)obj["percs"]).Count; k++)
                     {
                         eq &= ((double)((JArray)obj["percs"])[k]) == ((double)((JArray)obj2["percs"])[k]);
-                        eq &= ((string)((JArray)obj["names"])[k]) == ((string)((JArray)obj2["names"])[k]);
+                        //eq &= ((string)((JArray)obj["names"])[k]) == ((string)((JArray)obj2["names"])[k]);
                     }
 
                     for (int k = 0; k < ((JArray)obj["percs"]).Count; k++)
@@ -99,15 +105,12 @@ namespace ElvinVKR
                         if (eq)// if (obj["percs"].Equals(obj2["percs"]) && obj["names"].Equals(obj2["names"]))
                         {
                             if (key == "minM1" || key == "maxM1")
-                                dataGridView1.Rows[i].Cells[2].Style.BackColor = colorForbestVal[key];
+                                dataGridView1.Rows[i].Cells[1].Style.BackColor = colorForbestVal[key];
 
                             else
-                                dataGridView1.Rows[i].Cells[3].Style.BackColor = colorForbestVal[key];
-
+                                dataGridView1.Rows[i].Cells[2].Style.BackColor = colorForbestVal[key];
                         }
                 }
-
-
             }
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             dataGridView1.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
@@ -128,7 +131,7 @@ namespace ElvinVKR
             dataGridView2.Columns.Clear();
 
             dataGridView2.Columns.Add("percsCol", "Проенты");
-            dataGridView2.Columns.Add("namesCol", "Названия");
+            // dataGridView2.Columns.Add("namesCol", "Названия");
             dataGridView2.Columns.Add("m1Col", "м1");
             dataGridView2.Columns.Add("m2Col", "м2");
             dataGridView2.Columns.Add("dohodCol", "Доходность");
@@ -143,7 +146,7 @@ namespace ElvinVKR
             {
                 string key = keys[i];
                 JObject obj = (JObject)bestPorts[key][1];
-                object[] arr = { obj["percs"], obj["names"], obj["m1"], obj["m2"], obj["dohod"] };
+                object[] arr = { obj["percs"], /*obj["names"], */obj["m1"], obj["m2"], obj["dohod"] };
                 dataGridView2.Rows.Add(arr);
                 dataGridView2.Rows[i].HeaderCell.Value = key;
 
@@ -163,24 +166,30 @@ namespace ElvinVKR
 
             richTextBox1.Text = $"Лучший доход {bestDohod}\n" +
                 $"Достигается при показателе {bestKey}\n" +
-                $"Портфель {bestObj["percs"]} {bestObj["names"]}";
+                $"Портфель {bestObj["percs"]}";// {bestObj["names"]}";
             setStat(bestKey);
         }
         const string filename = "stat.txt";
         private void button1_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.ShowDialog();
-            string fname = ofd.FileName;//.Replace(@"\\", @"\");
+            //OpenFileDialog ofd = new OpenFileDialog();
+            //ofd.ShowDialog();
+           // string fname = ofd.FileName;//.Replace(@"\\", @"\");
 
-            string leng = "5";
+            // string leng = "5";
             string alph = "0.05";
             string k = "0.4";
-            string pythonPath = @"C:\python_django\python.exe";
+            string pythonPath = "python";//@"C:\python_django\python.exe";
 
             string cmd = DirPath + @"\pyCode\main.py";
 
-            string args = $" \"{cmd}\" \"{fname}\" {leng} {alph} {k} \"{ DirPath + @"\portfels.json"}\" \"{DirPath + @"\output.json"}\"";
+            string args = $" \"{cmd}\" {alph} {k} \"{ DirPath + @"\portfels.json"}\" \"{DirPath + @"\output.json"}\"";
+
+            for (int i = 0; i < stocksList.Count; i++)
+            {
+                args += $" {stocksList[i].id} {stocksList[i].code}";
+            }
+
 
             run_cmd(pythonPath, args);
 
