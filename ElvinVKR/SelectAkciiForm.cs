@@ -46,18 +46,24 @@ namespace ElvinVKR
             allStocks = new List<stockInfo>();
 
             string file = ofd.FileName;
-
-            StreamReader sr = new StreamReader(file);
-            string akc = sr.ReadToEnd();
-            sr.Close();
-
-            akcii = JArray.Parse(akc);
-
-            for (int i = 0; i < akcii.Count; i++)
+            try
             {
-                string name = (string)akcii[i]["name"];
-                dataGridView1.Rows.Add(name, false);
-                allStocks.Add(new stockInfo((int)akcii[i]["id"], (string)akcii[i]["code"], (string)akcii[i]["name"]));
+                StreamReader sr = new StreamReader(file);
+                string akc = sr.ReadToEnd();
+                sr.Close();
+
+                akcii = JArray.Parse(akc);
+
+                for (int i = 0; i < akcii.Count; i++)
+                {
+                    string name = (string)akcii[i]["name"];
+                    dataGridView1.Rows.Add(name, false);
+                    allStocks.Add(new stockInfo((int)akcii[i]["id"], (string)akcii[i]["code"], (string)akcii[i]["name"]));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Файл не является json-файлом");
             }
         }
 
@@ -72,9 +78,25 @@ namespace ElvinVKR
                 }
             }
 
+           /* if (stocks.Count > 7)
+            {
+                MessageBox.Show("Не более 7 акций");
+                return;
+            }*/
+            if (stocks.Count < 5)
+            {
+                MessageBox.Show("Хотя бы 5");
+                return;
+            }
+
             Form1 f1 = new Form1(stocks);
             f1.Show();
 
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }

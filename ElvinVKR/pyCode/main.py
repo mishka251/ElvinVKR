@@ -1,5 +1,5 @@
 import json
-from generate import percsAll
+from generate import getPercs
 from akcii  import stock
 import portfel
 import random
@@ -96,7 +96,7 @@ def main(leng:int, alph:float, k:float, outAll:str, outRes:str, akc_ids:List[int
    print('main')
    sts = loadStocks(leng, akc_ids, akc_codes)
    print(1)
-   percs = percsAll[leng]
+   percs = getPercs(leng)
    ports = createPortfels(percs, sts)
    res = findBest(ports)
    print(2)

@@ -33,6 +33,7 @@
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.usedAkc = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -42,7 +43,7 @@
             this.btnLoadFile.Name = "btnLoadFile";
             this.btnLoadFile.Size = new System.Drawing.Size(92, 35);
             this.btnLoadFile.TabIndex = 0;
-            this.btnLoadFile.Text = "LoadFile";
+            this.btnLoadFile.Text = "Загрузить файл";
             this.btnLoadFile.UseVisualStyleBackColor = true;
             this.btnLoadFile.Click += new System.EventHandler(this.btnLoadFile_Click);
             // 
@@ -52,7 +53,7 @@
             this.btnCalc.Name = "btnCalc";
             this.btnCalc.Size = new System.Drawing.Size(92, 37);
             this.btnCalc.TabIndex = 1;
-            this.btnCalc.Text = "Calculate";
+            this.btnCalc.Text = "Вычислить";
             this.btnCalc.UseVisualStyleBackColor = true;
             this.btnCalc.Click += new System.EventHandler(this.btnCalc_Click);
             // 
@@ -78,16 +79,27 @@
             this.usedAkc.HeaderText = "Использовать";
             this.usedAkc.Name = "usedAkc";
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(39, 335);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(183, 47);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "Выход";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // SelectAkciiForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.btnCalc);
             this.Controls.Add(this.btnLoadFile);
             this.Name = "SelectAkciiForm";
-            this.Text = "SelectAkciiForm";
+            this.Text = "Выбор акций";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
 
@@ -100,5 +112,6 @@
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.DataGridViewTextBoxColumn name;
         private System.Windows.Forms.DataGridViewCheckBoxColumn usedAkc;
+        private System.Windows.Forms.Button button1;
     }
 }

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace ElvinVKR
@@ -38,14 +39,24 @@ namespace ElvinVKR
             start.Arguments = args;//args is path to .py file and any cmd line args
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
+            string result = "";
             using (Process process = Process.Start(start))
             {
                 using (StreamReader reader = process.StandardOutput)
                 {
-                    string result = reader.ReadToEnd();
-                    Console.Write(result);
+                    result += reader.ReadToEnd();
+                    //Console.Write(result);
                 }
                 process.Close();
+            }
+            // MessageBox.Show(result);
+            if (!result.Contains("ok"))
+            {
+                MessageBox.Show(result);
+            }
+            else
+            {
+                // MessageBox.Show("Всё ок");
             }
         }
 
@@ -69,12 +80,12 @@ namespace ElvinVKR
 
             bestPorts = JObject.Parse(json);
         }
-
+        const int digitsRound = 2;
         void ShowAllPorts()
         {
             dataGridView1.Columns.Clear();
 
-            dataGridView1.Columns.Add("percsCol", "Проенты");
+            dataGridView1.Columns.Add("percsCol", "Проценты");
             //dataGridView1.Columns.Add("namesCol", "Названия");
             dataGridView1.Columns.Add("m1Col", "м1");
             dataGridView1.Columns.Add("m2Col", "м2");
@@ -83,7 +94,7 @@ namespace ElvinVKR
             for (int i = 0; i < allPortfels.Count; i++)
             {
                 JObject obj = (JObject)allPortfels[i];
-                object[] arr = { obj["percs"],/*, obj["names"],*/ obj["m1"], obj["m2"], obj["dohod"] };
+                object[] arr = { obj["percs"],/*, obj["names"],*/ Math.Round((double)obj["m1"], digitsRound), Math.Round((double)obj["m2"], digitsRound), Math.Round(100*(double)obj["dohod"], digitsRound)+"%" };
                 dataGridView1.Rows.Add(arr);
                 dataGridView1.Rows[i].HeaderCell.Value = (i + 1) + "";
 
@@ -125,12 +136,12 @@ namespace ElvinVKR
             {"maxM2", Color.Green }
 
         };
-
+        JObject bestObj;
         void ShowBestPorts()
         {
             dataGridView2.Columns.Clear();
 
-            dataGridView2.Columns.Add("percsCol", "Проенты");
+            dataGridView2.Columns.Add("percsCol", "Проценты");
             // dataGridView2.Columns.Add("namesCol", "Названия");
             dataGridView2.Columns.Add("m1Col", "м1");
             dataGridView2.Columns.Add("m2Col", "м2");
@@ -139,14 +150,14 @@ namespace ElvinVKR
 
 
             string bestKey = keys[0];
-            JObject bestObj = ((JObject)bestPorts[keys[0]][1]);
+             bestObj = ((JObject)bestPorts[keys[0]][1]);
             double bestDohod = (double)bestObj["dohod"];
 
             for (int i = 0; i < keys.Length; i++)
             {
                 string key = keys[i];
                 JObject obj = (JObject)bestPorts[key][1];
-                object[] arr = { obj["percs"], /*obj["names"], */obj["m1"], obj["m2"], obj["dohod"] };
+                object[] arr = { obj["percs"], /*obj["names"], */ Math.Round((double)obj["m1"], digitsRound), Math.Round((double)obj["m2"], digitsRound), Math.Round(100 * (double)obj["dohod"], digitsRound)+"%" };
                 dataGridView2.Rows.Add(arr);
                 dataGridView2.Rows[i].HeaderCell.Value = key;
 
@@ -164,7 +175,7 @@ namespace ElvinVKR
             dataGridView2.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             dataGridView2.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
 
-            richTextBox1.Text = $"Лучший доход {bestDohod}\n" +
+            richTextBox1.Text = $"Лучший доход { Math.Round(100 * bestDohod, digitsRound)}%\n" +
                 $"Достигается при показателе {bestKey}\n" +
                 $"Портфель {bestObj["percs"]}";// {bestObj["names"]}";
             setStat(bestKey);
@@ -174,9 +185,10 @@ namespace ElvinVKR
         {
             //OpenFileDialog ofd = new OpenFileDialog();
             //ofd.ShowDialog();
-           // string fname = ofd.FileName;//.Replace(@"\\", @"\");
+            // string fname = ofd.FileName;//.Replace(@"\\", @"\");
 
             // string leng = "5";
+
             string alph = "0.05";
             string k = "0.4";
             string pythonPath = "python";//@"C:\python_django\python.exe";
@@ -206,6 +218,9 @@ namespace ElvinVKR
             int m1Min = 0;
             int m2Min = 0;
             int m2Max = 0;
+
+            List<portfel> old_res = new List<portfel>();
+
             try
             {
                 StreamReader sr = new StreamReader(filename);
@@ -213,6 +228,11 @@ namespace ElvinVKR
                 m1Min = int.Parse(sr.ReadLine());
                 m2Min = int.Parse(sr.ReadLine());
                 m2Max = int.Parse(sr.ReadLine());
+
+                while(!sr.EndOfStream)
+                {
+                    old_res.Add(portfel.Load(sr));
+                }
                 sr.Close();
             }
             catch (Exception)
@@ -231,11 +251,20 @@ namespace ElvinVKR
                 default:
                     break;
             }
+
+            List<string> names = stocksList.Select(st => st.name).ToList();
+            List<int> percs = ((JArray)bestObj["percs"]).Select(obj => (int)obj).ToList();
+            double m1 = (double)bestObj["m1"];
+            double m2 = (double)bestObj["m2"];
+            double dohod = (double)bestObj["dohod"];
+            old_res.Add(new portfel(names,percs,m1, m2,dohod));
+
             StreamWriter sw = new StreamWriter(filename);
             sw.WriteLine($"{m1Max}");
             sw.WriteLine($"{m1Min}");
             sw.WriteLine($"{m2Min}");
             sw.WriteLine($"{m2Max}");
+            old_res.ForEach(p => p.Save(sw));
             sw.Close();
         }
 
@@ -243,6 +272,11 @@ namespace ElvinVKR
         {
             Stiatistic stat = new Stiatistic();
             stat.Show();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
